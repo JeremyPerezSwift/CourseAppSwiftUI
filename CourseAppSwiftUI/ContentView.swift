@@ -9,7 +9,13 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        CustomTabView()
+        
+        NavigationView {
+            CustomTabView()
+                .navigationTitle("Test")
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationBarHidden(true)
+        }
     }
 }
 
@@ -22,12 +28,27 @@ struct ContentView_Previews: PreviewProvider {
 struct CustomTabView: View {
     
     @State var selectedTab = "home"
+    @State var edge = UIApplication.shared.windows.first?.safeAreaInsets
     
     var body: some View {
         
         ZStack(alignment: Alignment(horizontal: .center, vertical: .bottom)) {
             
-            Home()
+            TabView(selection: $selectedTab) {
+                Home()
+                    .tag("home")
+                
+                EmailView()
+                    .tag("email")
+                
+                FolderView()
+                    .tag("folder")
+                
+                SettingsView()
+                    .tag("gear")
+            }
+//            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .ignoresSafeArea(.all, edges: .bottom)
             
             HStack(spacing: 0) {
                 
@@ -47,7 +68,9 @@ struct CustomTabView: View {
             .background(Color.white)
             .clipShape(Capsule())
             .padding(.horizontal)
-            .shadow(color: <#T##Color#>, radius: <#T##CGFloat#>, x: <#T##CGFloat#>, y: <#T##CGFloat#>)
+            .shadow(color: Color.black.opacity(0.15), radius: 5, x: 5, y: 5)
+            .shadow(color: Color.black.opacity(0.15), radius: 5, x: -5, y: -5)
+//            .padding(.bottom, edge!.bottom == 0 ? 20 : 0)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         
@@ -133,7 +156,11 @@ struct Home: View {
                     
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20), count: 2), spacing: 20) {
                         ForEach(courses) { course in
-                            CourseCardView(course: course)
+                            
+                            NavigationLink(destination: DetailView(course: course)) {
+                                CourseCardView(course: course)
+                            }
+                            
                         }
                     }
                     .padding(.top)
@@ -184,6 +211,42 @@ struct CourseCardView: View {
     }
 }
 
+struct EmailView: View {
+    
+    var body: some View {
+        
+        VStack {
+            Text("Email")
+        }
+        .background(Color.black.opacity(0.03).ignoresSafeArea(.all, edges: .all))
+        
+    }
+}
+
+struct FolderView: View {
+    
+    var body: some View {
+        
+        VStack {
+            Text("Folder")
+        }
+        .background(Color.black.opacity(0.03).ignoresSafeArea(.all, edges: .all))
+        
+    }
+}
+
+struct SettingsView: View {
+    
+    var body: some View {
+        
+        VStack {
+            Text("Settings")
+        }
+        .background(Color.black.opacity(0.03).ignoresSafeArea(.all, edges: .all))
+        
+    }
+}
+
 // Model Data
 
 struct Course: Identifiable {
@@ -200,3 +263,22 @@ var courses = [
     Course(name: "Undraw_4", numCourse: 12, asset: "undraw_4"),
     Course(name: "Undraw_5", numCourse: 12, asset: "undraw_5")
 ]
+
+
+struct DetailView: View {
+    
+    var course: Course
+    
+    var body: some View {
+        
+        VStack {
+            Text(course.name)
+                .font(.title2)
+                .fontWeight(.bold)
+        }
+        .navigationTitle(course.name)
+        .navigationBarTitleDisplayMode(.inline)
+        
+    }
+    
+}
